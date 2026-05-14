@@ -1,0 +1,33 @@
+async function analyzeChart() {
+
+  const loader = document.getElementById('loader');
+  const results = document.getElementById('results');
+
+  loader.style.display = 'block';
+  results.style.display = 'none';
+
+  // REAL API CALL
+  const res = await fetch("http://127.0.0.1:5000/signal/BTCUSD");
+  const data = await res.json();
+
+  const acc = await fetch("http://127.0.0.1:5000/account");
+  const account = await acc.json();
+
+  setTimeout(() => {
+
+    loader.style.display = 'none';
+    results.style.display = 'grid';
+
+    // SIGNAL
+    document.getElementById("signalText").innerText = data.signal;
+    document.getElementById("entry").innerText = data.entry;
+
+    // SIMPLE LOGIC
+    document.getElementById("confidence").innerText = data.confidence + "%";
+
+    // REAL PROFIT
+    document.getElementById("tp").innerText = account.profit;
+    document.getElementById("sl").innerText = account.balance;
+
+  }, 1000);
+}
