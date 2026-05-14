@@ -6,28 +6,22 @@ async function analyzeChart() {
   loader.style.display = 'block';
   results.style.display = 'none';
 
-  // REAL API CALL
-  const res = await fetch("http://127.0.0.1:5000/signal/BTCUSD");
-  const data = await res.json();
+  const signalRes = await fetch("http://127.0.0.1:5000/signal/BTCUSD");
+  const signalData = await signalRes.json();
 
-  const acc = await fetch("http://127.0.0.1:5000/account");
-  const account = await acc.json();
+  const accountRes = await fetch("http://127.0.0.1:5000/account");
+  const accountData = await accountRes.json();
 
-  setTimeout(() => {
+  loader.style.display = 'none';
+  results.style.display = 'grid';
 
-    loader.style.display = 'none';
-    results.style.display = 'grid';
+  document.getElementById("signalText").innerText = signalData.signal;
+  document.getElementById("entry").innerText = signalData.entry;
+  document.getElementById("confidence").innerText = signalData.confidence + "%";
 
-    // SIGNAL
-    document.getElementById("signalText").innerText = data.signal;
-    document.getElementById("entry").innerText = data.entry;
+  document.getElementById("tp").innerText = (signalData.entry * 1.002).toFixed(2);
+  document.getElementById("sl").innerText = (signalData.entry * 0.998).toFixed(2);
 
-    // SIMPLE LOGIC
-    document.getElementById("confidence").innerText = data.confidence + "%";
+  document.getElementById("rr").innerText = "1 : 2";
 
-    // REAL PROFIT
-    document.getElementById("tp").innerText = account.profit;
-    document.getElementById("sl").innerText = account.balance;
-
-  }, 1000);
 }
