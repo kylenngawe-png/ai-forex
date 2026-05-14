@@ -5,18 +5,16 @@ import MetaTrader5 as mt5
 app = Flask(__name__)
 CORS(app)
 
-# CONNECT TO MT5 TERMINAL
+# initialize MT5
 mt5.initialize()
 
 @app.route("/account")
 def account():
     info = mt5.account_info()
-
     return jsonify({
-        "balance": info.balance,
-        "equity": info.equity,
-        "profit": info.profit,
-        "currency": info.currency
+        "balance": float(info.balance),
+        "equity": float(info.equity),
+        "profit": float(info.profit)
     })
 
 @app.route("/price/<symbol>")
@@ -31,22 +29,25 @@ def price(symbol):
 
 @app.route("/signal/<symbol>")
 def signal(symbol):
-    rates = mt5.copy_rates_from_pos(symbol, mt5.TIMEFRAME_M1, 0, 50)
+    rates = mt5.copy_rates_from_pos(symbol, mt5.TIMEFRAME_M1, 0, 100)
 
     closes = [r[4] for r in rates]
 
-    ema_fast = sum(closes[-10:]) / 10
-    ema_slow = sum(closes[-20:]) / 20
+    # REAL SIMPLE STRATEGY (EMA LOGIC)
+    fast = sum(closes[-10:]) / 10
+    slow = sum(closes[-30:]) / 30
 
-    if ema_fast > ema_slow:
-        signal = "BUY"
+    if fast > slow:
+        sig = "BUY"
     else:
-        signal = "SELL"
+        sig = "SELL"
+
+    entry = closes[-1]
 
     return jsonify({
-        "signal": signal,
-        "entry": closes[-1],
-        "confidence": 75
+        "signal": sig,
+        "entry": entry,
+        "confidence": 70
     })
 
 if __name__ == "__main__":
